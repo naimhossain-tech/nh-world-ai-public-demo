@@ -1,0 +1,43 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+*.env
+*.env.*
+
+# Database and local history
+*.sqlite
+*.sqlite3
+*.db
+task_history.sqlite3
+
+# Uploaded files and generated results
+uploads/*
+results/*
+
+# Local backups and candidate files
+*.backup
+*.backup-*
+*.bak
+*.before-*
+*.before-openai-*
+*.pre-*
+*.agent-backup-*
+*.candidate
+*.log
+
+# Editor and operating system files
+.DS_Store
+Thumbs.db
+
+# Local sample data
+/demo.csv
+
+# Local helper scripts
+connect_naim_ai.py

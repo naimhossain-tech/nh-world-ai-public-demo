@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Owner Login | Naim AI Work Agent</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; display: grid; place-items: center;
+      padding: 20px; color: #edf2ff; background: #0b1020;
+      font-family: system-ui, sans-serif;
+    }
+    main {
+      width: 100%; max-width: 410px; padding: 28px;
+      border: 1px solid #303b55; border-radius: 18px;
+      background: #151d31;
+    }
+    h1 { margin-top: 0; font-size: 25px; }
+    p { color: #bdc8df; line-height: 1.6; }
+    label { display: block; margin-top: 16px; }
+    input {
+      display: block; width: 100%; margin-top: 7px; padding: 12px;
+      border-radius: 9px; border: 1px solid #45516d;
+      background: #0c1426; color: white; font-size: 16px;
+    }
+    button {
+      width: 100%; margin-top: 22px; padding: 12px;
+      border: 0; border-radius: 9px; font-size: 16px;
+      font-weight: 700; cursor: pointer;
+    }
+    .error {
+      padding: 10px; border-radius: 8px; background: #40232c;
+      color: #ffd4d8;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>✦ Naim AI Work Agent</h1>
+    <p>এটি ব্যক্তিগত workspace। চালিয়ে যেতে মালিকের লগইন তথ্য দিন।</p>
+    {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+    <form action="/login" method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <label for="username">ব্যবহারকারীর নাম</label>
+      <input id="username" name="username" autocomplete="username"
+             required maxlength="128">
+      <label for="password">পাসওয়ার্ড</label>
+      <input id="password" name="password" type="password"
+             autocomplete="current-password" required>
+      <button type="submit">নিরাপদে লগইন</button>
+    </form>
+  </main>
+</body>
+</html>

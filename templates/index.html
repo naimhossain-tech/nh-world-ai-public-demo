@@ -1,0 +1,1379 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#101827">
+<title>NH AI Creation Center</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1120;--panel:#141e30;--line:#2a3951;--text:#edf3ff;--muted:#a6b5cc;--accent:#8b9cff}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px system-ui,sans-serif}
+main{width:min(900px,100%);margin:auto;padding:20px 15px 40px}
+header{padding:16px 0 22px}
+h1{font-size:clamp(25px,5vw,36px);margin:0 0 8px}
+p{line-height:1.65}
+.muted{color:var(--muted)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px;margin:14px 0}
+.status{font-size:14px;color:#a8e6c0}
+#messages{display:flex;flex-direction:column;gap:12px;min-height:100px;max-height:380px;overflow:auto}
+.msg{padding:12px 14px;border-radius:13px;background:#202d43;line-height:1.6;overflow-wrap:anywhere}
+.msg.user{background:#303c68;align-self:flex-end;max-width:90%}
+label{display:block;margin:10px 0 7px;font-weight:600}
+input,textarea,button{font:inherit}
+textarea,input[type=file]{width:100%;background:#0e1728;color:var(--text);border:1px solid var(--line);border-radius:11px;padding:12px}
+textarea{resize:vertical;min-height:85px}
+button,.download{display:inline-block;border:0;border-radius:11px;padding:12px 17px;background:var(--accent);color:#10162b;font-weight:700;cursor:pointer;text-decoration:none}
+button:disabled{opacity:.6}
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:10px}
+#result{line-height:1.8;overflow-wrap:anywhere}
+.small{font-size:13px}
+.file-info{margin:10px 0;padding:10px 12px;border:1px solid var(--line);border-radius:10px;overflow-wrap:anywhere}
+button.secondary{background:#26364c;color:var(--text);border:1px solid var(--line)}
+footer{color:var(--muted);font-size:13px;padding-top:12px}
+
+/* NH AI Creation Center dashboard */
+body{background:radial-gradient(ellipse at 50% 0%,#17234b 0,#080e20 58%,#050916 100%)}
+main{width:min(1180px,100%);padding:22px 16px 42px}
+header{padding:14px 0 20px}
+header h1{letter-spacing:-.7px}
+.dashboard{background:linear-gradient(145deg,#101b35,#0a1226);border:1px solid #263758;border-radius:20px;padding:18px;margin:12px 0 22px;box-shadow:0 16px 45px #0005}
+.dash-search{width:100%;background:#0a1225;border:1px solid #273653;color:#dce7ff;border-radius:12px;padding:12px 15px;margin-bottom:22px}
+.dash-title{font-size:clamp(23px,4vw,34px);margin:0 0 7px}
+.dash-subtitle{color:#a7b6d3;margin:0 0 20px}
+.metric-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.metric{border:1px solid #273653;background:#121e35;border-radius:14px;padding:14px;min-width:0}
+.metric small{display:block;color:#a6b5d1}
+.metric strong{display:block;font-size:clamp(19px,3vw,28px);margin:5px 0;color:#eef3ff}
+.metric .good{font-size:12px;color:#78e4be}
+.routing{border:1px solid #273653;background:#091226;border-radius:15px;padding:14px 10px 10px;overflow:hidden}
+.routing-head{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:3px 8px 12px;font-weight:650}
+.live{color:#70e8ca;font-size:11px;white-space:nowrap}
+.routing-svg{display:block;width:100%;height:auto;min-height:145px;overflow:visible}
+.routing-svg text{fill:#dce7ff;font-size:12px;text-anchor:middle;font-family:system-ui,sans-serif}
+.routing-svg .station{fill:#111d38;fill-opacity:.9;stroke-width:2;filter:url(#routeGlow)}
+.routing-svg .pstation{stroke:#c06aff}.routing-svg .bstation{stroke:#428dff}.routing-svg .cstation{stroke:#32d9c4}
+.routing-svg .route{fill:none;stroke-width:10;stroke-linecap:round;opacity:.55;filter:url(#routeGlow)}
+.routing-svg .purple{stroke:#bd61ff}.routing-svg .blue{stroke:#3988ff}.routing-svg .cyan{stroke:#28d9c4}
+.routing-svg .moving{fill:none;stroke-width:2.4;stroke-dasharray:7 15;animation:routeDash 2.3s linear infinite;opacity:.98}
+.routing-svg .dotp{fill:#f1b5ff;filter:url(#routeGlow)}.routing-svg .dotb{fill:#a4d0ff;filter:url(#routeGlow)}.routing-svg .dotc{fill:#9bfff0;filter:url(#routeGlow)}
+.route-legend{display:flex;justify-content:space-around;gap:10px;flex-wrap:wrap;border-top:1px solid #25334d;padding:12px 4px 2px;color:#b8c7e3;font-size:11px}
+.route-legend span{display:flex;align-items:center;gap:6px}
+.route-legend i{width:8px;height:8px;border-radius:50%;display:inline-block}
+.route-legend .lp{background:#bd61ff;box-shadow:0 0 8px #bd61ff}.route-legend .lb{background:#3988ff;box-shadow:0 0 8px #3988ff}.route-legend .lc{background:#28d9c4;box-shadow:0 0 8px #28d9c4}
+.section-label{color:#9eafd0;font-size:12px;letter-spacing:1.4px;margin:22px 0 8px}
+#messages{min-height:100px}
+@keyframes routeDash{to{stroke-dashoffset:-44}}
+@media(max-width:600px){
+ .metric-grid{grid-template-columns:1fr}
+ .metric{padding:12px}
+ .dashboard{padding:12px}
+ .routing{padding:12px 5px 8px}
+ .routing-svg text{font-size:11px}
+ .route-legend{font-size:10px}
+}
+@media(prefers-reduced-motion:reduce){.routing-svg .moving{animation:none}}
+
+
+.task-panel { margin-top: 24px; }
+.task-panel textarea { width: 100%; min-height: 110px; }
+.task-history { display: grid; gap: 10px; margin-top: 16px; }
+.task-item {
+  border: 1px solid var(--border, #39445a);
+  border-radius: 10px; padding: 12px; overflow-wrap: anywhere;
+}
+.task-item p { margin: 6px 0; }
+.task-meta { font-size: .88rem; opacity: .8; }
+.task-detail { margin-top: 12px; overflow-wrap: anywhere; }
+.task-detail li { margin: 8px 0; }
+.task-error { color: #c0392b; }
+
+
+/* Project Intelligence: colorful scanner logo */
+.project-intel-logo {
+  width: 112px;
+  height: 112px;
+  display: grid;
+  place-items: center;
+  margin: 4px 0 14px;
+  border: 1px solid rgba(112, 220, 255, .35);
+  border-radius: 24px;
+  background: linear-gradient(145deg, #172b59, #372477, #10172e);
+  box-shadow: 0 8px 26px rgba(83, 110, 255, .2);
+  overflow: hidden;
+}
+.project-intel-logo svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+
+/* NH Project Health Score */
+.project-health {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr);
+  gap: 16px;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 16px;
+  margin: 16px 0;
+  background: linear-gradient(135deg, #101c32, #17152f);
+}
+.project-health-gauge {
+  width: 124px;
+  height: 124px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  position: relative;
+  background: conic-gradient(#4ade80 0deg, #293448 0deg);
+}
+.project-health-gauge::before {
+  content: "";
+  position: absolute;
+  inset: 9px;
+  border-radius: 50%;
+  background: #101827;
+}
+.project-health-score { position: relative; text-align: center; }
+.project-health-score strong { display: block; font-size: 34px; }
+.project-health-score span { color: var(--muted); font-size: 11px; }
+.project-health-bar {
+  height: 8px;
+  background: #293448;
+  border-radius: 99px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+.project-health-bar span {
+  display: block;
+  height: 100%;
+  width: 0;
+  transition: width .25s ease;
+}
+@media (max-width: 480px) {
+  .project-health { grid-template-columns: 1fr; justify-items: center; }
+  .project-health-details { width: 100%; }
+}
+
+/* Project Intelligence: read-only report */
+.project-intel-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(135px,1fr));
+  gap:10px;
+  margin:16px 0;
+}
+.project-intel-metric {
+  border:1px solid var(--line);
+  background:#0e1728;
+  border-radius:12px;
+  padding:12px;
+  min-width:0;
+}
+.project-intel-metric span {
+  display:block;
+  color:var(--muted);
+  font-size:13px;
+}
+.project-intel-metric strong {
+  display:block;
+  font-size:24px;
+  overflow-wrap:anywhere;
+  margin-top:4px;
+}
+.project-intel-list {
+  display:grid;
+  gap:8px;
+  padding-left:20px;
+  overflow-wrap:anywhere;
+}
+.project-intel-item {
+  border:1px solid var(--line);
+  background:#0e1728;
+  border-radius:10px;
+  padding:10px 12px;
+  overflow-wrap:anywhere;
+}
+.project-intel-item p { margin:5px 0; }
+.project-intel-scroll {
+  max-height:320px;
+  overflow:auto;
+  border-radius:10px;
+}
+.project-intel-status { margin:12px 0; overflow-wrap:anywhere; }
+.project-intel-error { color:#ffaaa7; }
+.project-intel-note { color:var(--muted); font-size:13px; }
+
+</style>
+</head>
+<body>
+<form action="/logout" method="post"
+      style="max-width:1100px;margin:12px auto 0;text-align:right;padding:0 12px">
+  <input type="hidden" name="csrf_token" value="{{ session.get('csrf_token', '') }}">
+  <button type="submit"
+          style="padding:9px 15px;border-radius:9px;cursor:pointer">
+    লগআউট
+  </button>
+</form>
+<main>
+<header>
+  <p class="muted">YOUR PERSONAL AUTOMATION WORKSPACE</p>
+  <h1>✦ NH AI Creation Center</h1>
+  <p class="muted">আপনার কাজ লিখুন, ফাইল দিন, ফলাফল তৈরি করুন।</p>
+  <div id="status" class="status">স্থানীয় টুল প্রস্তুত করা হচ্ছে…</div>
+</header>
+
+<section class="dashboard" aria-label="NH AI Automation dashboard">
+  <input class="dash-search" type="text" value="Search workflows, agents, approvals..." readonly aria-label="Workflow dashboard preview">
+  <h2 class="dash-title">NH AI Creation Center</h2>
+  <p class="dash-subtitle">Automation routing, workflow status and AI tools in one place.</p>
+
+  <div class="metric-grid">
+    <div class="metric"><small>AI Workspace</small><strong>Ready</strong><span class="good">● Interface active</span></div>
+    <div class="metric"><small>Workflow health</small><strong>Online</strong><span class="good">● Server connected</span></div>
+    <div class="metric"><small>Available tools</small><strong>02</strong><span class="good">AI Chat · File Cleaner</span></div>
+  </div>
+
+  <div class="routing">
+    <div class="routing-head"><span>Workflow routing map</span><span class="live">● LIVE PREVIEW</span></div>
+    <svg class="routing-svg" viewBox="0 0 560 270" role="img" aria-label="Animated workflow from Intake through Classify, Review and Fallback to Deliver">
+      <defs>
+        <filter id="routeGlow"><feGaussianBlur stdDeviation="3.2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      </defs>
+      <g>
+        <path class="route purple" d="M35 65 C80 65 93 104 145 99 S205 65 260 79 S333 105 385 87 S458 100 520 83"/>
+        <path class="route blue" d="M35 139 C85 139 97 176 145 166 S209 132 260 151 S333 177 385 155 S459 122 520 83"/>
+        <path class="route cyan" d="M35 215 C83 215 100 192 145 207 S209 231 260 211 S334 219 385 193 S460 140 520 83"/>
+        <path class="route purple moving" d="M35 65 C80 65 93 104 145 99 S205 65 260 79 S333 105 385 87 S458 100 520 83"/>
+        <path class="route blue moving" d="M35 139 C85 139 97 176 145 166 S209 132 260 151 S333 177 385 155 S459 122 520 83"/>
+        <path class="route cyan moving" d="M35 215 C83 215 100 192 145 207 S209 231 260 211 S334 219 385 193 S460 140 520 83"/>
+      </g>
+      <g transform="translate(35 0)">
+        <rect class="station pstation" x="-9" y="48" width="18" height="190" rx="9"/>
+        <circle class="dotp" cy="65" r="4"/><circle class="dotb" cy="139" r="4"/><circle class="dotc" cy="215" r="4"/>
+        <text y="29">Intake</text>
+      </g>
+      <g transform="translate(145 0)">
+        <rect class="station pstation" x="-9" y="48" width="18" height="190" rx="9"/>
+        <circle class="dotp" cy="99" r="4"/><circle class="dotb" cy="166" r="4"/><circle class="dotc" cy="207" r="4"/>
+        <text y="29">Classify</text>
+      </g>
+      <g transform="translate(260 0)">
+        <rect class="station bstation" x="-9" y="48" width="18" height="190" rx="9"/>
+        <circle class="dotp" cy="79" r="4"/><circle class="dotb" cy="151" r="4"/><circle class="dotc" cy="211" r="4"/>
+        <text y="29">Review</text>
+      </g>
+      <g transform="translate(385 0)">
+        <rect class="station cstation" x="-9" y="48" width="18" height="190" rx="9"/>
+        <circle class="dotp" cy="87" r="4"/><circle class="dotb" cy="155" r="4"/><circle class="dotc" cy="193" r="4"/>
+        <text y="29">Fallback</text>
+      </g>
+      <g transform="translate(520 0)">
+        <circle cx="0" cy="83" r="19" fill="#172b4a" stroke="#b5c5ff" stroke-width="2" filter="url(#routeGlow)"/>
+        <path d="M-8 83 l6 6 11 -13" fill="none" stroke="#e0eaff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        <text y="29">Deliver</text>
+      </g>
+      <g>
+        <circle r="4" class="dotp"><animateMotion dur="4.2s" repeatCount="indefinite" path="M35 65 C80 65 93 104 145 99 S205 65 260 79 S333 105 385 87 S458 100 520 83"/></circle>
+        <circle r="4" class="dotb"><animateMotion dur="5.1s" repeatCount="indefinite" path="M35 139 C85 139 97 176 145 166 S209 132 260 151 S333 177 385 155 S459 122 520 83"/></circle>
+        <circle r="4" class="dotc"><animateMotion dur="5.8s" repeatCount="indefinite" path="M35 215 C83 215 100 192 145 207 S209 231 260 211 S334 219 385 193 S460 140 520 83"/></circle>
+      </g>
+    </svg>
+    <div class="route-legend"><span><i class="lp"></i>Primary path</span><span><i class="lb"></i>Secondary path</span><span><i class="lc"></i>Fallback path</span></div>
+  </div>
+</section>
+<p class="section-label">AI WORKSPACE</p>
+
+
+<section class="panel">
+  <h2>AI Assistant</h2>
+  <div id="messages" aria-live="polite">
+    <div class="msg">আসসালামু আলাইকুম! আমি আপনার কাজের সহকারী। এখন CSV ও Excel ফাইল পরিষ্কারের টুল ব্যবহার করতে পারবেন।</div>
+  </div>
+  <form id="chatForm">
+    <label for="message">আপনার নির্দেশ</label>
+    <textarea id="message" maxlength="2000" placeholder="যেমন: আমার CSV ফাইলের ডুপ্লিকেট সারি সরাও" required></textarea>
+    <div class="actions"><button id="sendBtn" type="submit">কমান্ড পাঠান</button></div>
+  </form>
+</section>
+
+<section class="panel">
+  <h2>CSV / Excel Cleaner</h2>
+  <p class="muted">CSV অথবা XLSX ফাইল আপলোড করুন। সম্পূর্ণ ফাঁকা সারি ও ডুপ্লিকেট সারি সরানো হবে। সর্বোচ্চ ১০ MB।</p>
+  <form id="uploadForm">
+    <label for="file">আপনার CSV বা Excel ফাইল বেছে নিন</label>
+    <input id="file" name="file" type="file"
+      accept=".csv,text/csv,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      aria-describedby="fileHelp fileInfo" required>
+    <p id="fileHelp" class="muted small">ফোনের Files বা Downloads থেকে .csv অথবা .xlsx ফাইল বেছে নিন। সর্বোচ্চ ১০ MB।</p>
+    <div id="fileInfo" class="file-info small" aria-live="polite">এখনো কোনো ফাইল বাছাই করা হয়নি।</div>
+    <div class="actions">
+      <button id="chooseFileBtn" type="button">অন্য ফাইল বেছে নিন</button>
+      <button id="clearFileBtn" class="secondary" type="button">ফাইল সরান</button>
+      <button id="cleanBtn" type="submit">ফাইল পরিষ্কার করুন</button>
+    </div>
+  </form>
+  <div id="result" aria-live="polite"></div>
+</section>
+
+
+<section class="panel task-panel" aria-labelledby="taskPlannerTitle">
+  <h2 id="taskPlannerTitle">NH Agentic Workbench · Task Planner &amp; History</h2>
+  <p class="muted">
+    কাজের পরিকল্পনা তৈরি করুন। সমর্থিত CSV/XLSX কাজ ফাইল নির্বাচন
+    ও আপনার স্পষ্ট অনুমোদনের পর চালানো হবে; অন্য কাজের কোড স্বয়ংক্রিয়ভাবে চলবে না।
+  </p>
+
+  <form id="taskPlanForm">
+    <label for="taskInstruction">আপনার কাজের নির্দেশ</label>
+    <textarea id="taskInstruction" maxlength="4000"
+      placeholder="যেমন: একটি CSV ফাইলের ডুপ্লিকেট সারি সরানোর পরিকল্পনা তৈরি করো"
+      required></textarea>
+    <div class="actions">
+      <button id="taskPlanButton" type="submit">পরিকল্পনা তৈরি করুন</button>
+      <button id="taskRefreshButton" class="secondary" type="button">
+        ইতিহাস রিফ্রেশ
+      </button>
+    </div>
+  </form>
+
+  <p id="taskNotice" aria-live="polite" role="status"></p>
+  <div id="taskDetail" class="task-detail" aria-live="polite"></div>
+
+  <h3>সাম্প্রতিক কাজ</h3>
+  <div id="taskHistory" class="task-history" aria-live="polite">
+    ইতিহাস লোড হচ্ছে…
+  </div>
+</section>
+
+<footer>CSV / Excel Cleaner · AI সুবিধা সার্ভারের কনফিগারেশনের ওপর নির্ভরশীল।</footer>
+
+<section class="panel" id="projectIntelPanel" aria-labelledby="projectIntelTitle">
+  <div class="project-intel-logo" role="img" aria-label="Project Scanner logo">
+    <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs>
+        <linearGradient id="piBg" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#172b59"/>
+          <stop offset="55%" stop-color="#372477"/>
+          <stop offset="100%" stop-color="#10172e"/>
+        </linearGradient>
+        <linearGradient id="piGlow" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#54e7ff"/>
+          <stop offset="100%" stop-color="#b58aff"/>
+        </linearGradient>
+      </defs>
+      <rect x="3" y="3" width="114" height="114" rx="25" fill="url(#piBg)"/>
+      <circle cx="55" cy="49" r="27" fill="none" stroke="#56dcff" stroke-width="3" opacity=".25"/>
+      <circle cx="55" cy="49" r="20" fill="#172343" stroke="url(#piGlow)" stroke-width="4"/>
+      <path d="M69 64 L87 82" stroke="#70e8ff" stroke-width="9" stroke-linecap="round"/>
+      <path d="M69 64 L87 82" stroke="#d7faff" stroke-width="3" stroke-linecap="round"/>
+      <path d="M43 56 V49 M53 56 V39 M63 56 V45" fill="none" stroke="#72eaff" stroke-width="4" stroke-linecap="round"/>
+      <path d="M23 27 H34 M23 27 V38 M86 27 H97 V38 M23 79 V90 H34 M86 90 H97 V79" fill="none" stroke="#b18cff" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="91" cy="48" r="3" fill="#ff80d5"/>
+      <circle cx="31" cy="65" r="2.5" fill="#62f4cf"/>
+    </svg>
+  </div>
+  <h2 id="projectIntelTitle">🔎 NH Intelligence</h2>
+  <p class="muted">
+    প্রজেক্টের ফাইল, Flask route, Blueprint, টেস্ট এবং সম্ভাব্য সমস্যার
+    read-only রিপোর্ট তৈরি করুন। এই স্ক্যান কোনো ফাইল পরিবর্তন করে না।
+  </p>
+  <div class="actions">
+    <button id="projectIntelScanButton" type="button">প্রজেক্ট স্ক্যান করুন</button>
+    <button id="projectIntelTestButton" class="secondary" type="button">টেস্ট চালান</button>
+    <button id="securityScanButton" class="secondary" type="button">নিরাপত্তা স্ক্যান</button>
+    <button id="securityAdviceButton" class="secondary" type="button">AI পরামর্শ নিন</button>
+  </div>
+  <p id="projectIntelStatus" class="project-intel-status" role="status" aria-live="polite">
+    স্ক্যান চালাতে বোতামে চাপ দিন।
+  </p>
+  <div id="projectIntelSummary" class="project-intel-grid"></div>
+  <h3>Smart Bug &amp; Security Detector</h3>
+  <p class="project-intel-note">এটি heuristic scan; ফলাফল নিশ্চিত vulnerability প্রমাণ করে না।</p>
+  <div id="securityScanResults" class="project-intel-scroll" aria-live="polite">
+    <p class="muted">নিরাপত্তা স্ক্যান চালানোর অপেক্ষায়।</p>
+  </div>
+  <h3>Advice &amp; Collaboration</h3>
+  <div id="securityAdviceResults" class="project-intel-scroll" aria-live="polite">
+    <p class="muted">স্ক্যানের ফলাফল নিয়ে AI পরামর্শ চাইতে পারেন।</p>
+  </div>
+  <section class="project-health" aria-label="NH Project Health Score" aria-live="polite">
+    <div id="projectHealthGauge" class="project-health-gauge">
+      <div class="project-health-score">
+        <strong id="projectHealthScore">—</strong>
+        <span>HEALTH SCORE</span>
+      </div>
+    </div>
+    <div class="project-health-details">
+      <h3 id="projectHealthLabel">স্ক্যানের অপেক্ষায়</h3>
+      <p id="projectHealthDescription" class="muted">প্রজেক্ট স্ক্যান করলে স্কোর দেখা যাবে।</p>
+      <p id="projectHealthTests">টেস্ট: এখনো যাচাই করা হয়নি</p>
+      <div class="project-health-bar"><span id="projectHealthBar"></span></div>
+    </div>
+  </section>
+
+
+  <h3>সমস্যা ও সমাধানের পরামর্শ</h3>
+  <div id="projectIntelFindings" class="project-intel-scroll">
+    <p class="muted">স্ক্যানের পর এখানে ফলাফল দেখা যাবে।</p>
+  </div>
+
+  <h3>Flask route-এর তালিকা</h3>
+  <div id="projectIntelRoutes" class="project-intel-scroll">
+    <p class="muted">এখনো স্ক্যান করা হয়নি।</p>
+  </div>
+
+  <h3>প্রজেক্ট ফাইল</h3>
+  <p id="projectIntelFileCount" class="project-intel-note"></p>
+  <div id="projectIntelFiles" class="project-intel-scroll">
+    <p class="muted">এখনো স্ক্যান করা হয়নি।</p>
+  </div>
+  <p class="project-intel-note">
+    নিরাপত্তার জন্য .venv, .git, uploads, results, .env-জাতীয় ফাইল
+    এবং SQLite/database ফাইল স্ক্যানের বাইরে রাখা হয়।
+  </p>
+</section>
+
+</main>
+<script>
+const messages = document.getElementById("messages");
+const statusLine = document.getElementById("status");
+
+function addMessage(text, who="assistant") {
+  const div = document.createElement("div");
+  div.className = "msg" + (who === "user" ? " user" : "");
+  div.textContent = text;
+  messages.appendChild(div);
+  messages.scrollTop = messages.scrollHeight;
+}
+
+async function checkStatus() {
+  try {
+    const response = await fetch("/api/status");
+    const data = await response.json();
+    statusLine.textContent = data.status !== "ok"
+      ? "সার্ভারের অবস্থা পরীক্ষা করুন"
+      : data.ai_configured
+        ? "● সার্ভার অনলাইন · AI API Key সেট করা আছে"
+        : "● লোকাল টুল অনলাইন · ক্লাউড AI সংযুক্ত নয়";
+  } catch (_) {
+    statusLine.textContent = "সার্ভারের সঙ্গে সংযোগ করা যায়নি";
+  }
+}
+checkStatus();
+
+document.getElementById("chatForm").addEventListener("submit", async event => {
+  event.preventDefault();
+  const input = document.getElementById("message");
+  const button = document.getElementById("sendBtn");
+  const message = input.value.trim();
+  if (!message) return;
+
+  addMessage(message, "user");
+  input.value = "";
+  button.disabled = true;
+  try {
+    const response = await fetch("/api/chat", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({message})
+    });
+    const data = await response.json();
+    addMessage(data.reply || data.error || "উত্তর পাওয়া যায়নি।");
+  } catch (_) {
+    addMessage("সার্ভারের সঙ্গে যোগাযোগ করা যায়নি।");
+  } finally {
+    button.disabled = false;
+    input.focus();
+  }
+});
+
+const fileInput = document.getElementById("file");
+const fileInfo = document.getElementById("fileInfo");
+const cleanButton = document.getElementById("cleanBtn");
+const result = document.getElementById("result");
+let previewFileName = null;
+
+function resetCleanerResult() {
+  previewFileName = null;
+  result.replaceChildren();
+  cleanButton.textContent = "প্রিভিউ দেখুন";
+}
+
+function showSelectedFile() {
+  const file = fileInput.files[0];
+  resetCleanerResult();
+
+  if (!file) {
+    fileInfo.textContent = "এখনো কোনো ফাইল বাছাই করা হয়নি।";
+    cleanButton.disabled = true;
+    return;
+  }
+
+  const size = file.size < 1024 * 1024
+    ? `${(file.size / 1024).toFixed(1)} KB`
+    : `${(file.size / (1024 * 1024)).toFixed(2)} MB`;
+
+  fileInfo.textContent = `নির্বাচিত ফাইল: ${file.name} · ${size}`;
+  cleanButton.disabled = file.size > 10 * 1024 * 1024;
+  if (cleanButton.disabled) {
+    result.textContent = "ফাইলের সর্বোচ্চ আকার ১০ MB। ছোট ফাইল নির্বাচন করুন।";
+  }
+}
+
+fileInput.addEventListener("change", showSelectedFile);
+
+document.getElementById("chooseFileBtn").addEventListener("click", () => {
+  fileInput.click();
+});
+
+document.getElementById("clearFileBtn").addEventListener("click", () => {
+  fileInput.value = "";
+  showSelectedFile();
+});
+
+function appendRowsTable(parent, rows, heading) {
+  if (heading) {
+    const title = document.createElement("h4");
+    title.textContent = heading;
+    parent.appendChild(title);
+  }
+
+  if (!rows || !rows.length) {
+    const empty = document.createElement("p");
+    empty.textContent = "দেখানোর মতো কোনো সারি নেই।";
+    parent.appendChild(empty);
+    return;
+  }
+
+  const wrapper = document.createElement("div");
+  wrapper.style.overflowX = "auto";
+  const table = document.createElement("table");
+  table.style.width = "100%";
+  table.style.borderCollapse = "collapse";
+
+  rows.forEach((row, index) => {
+    const tr = document.createElement("tr");
+    row.forEach(value => {
+      const cell = document.createElement(index === 0 ? "th" : "td");
+      cell.textContent = value == null ? "" : String(value);
+      cell.style.border = "1px solid var(--border, #ccc)";
+      cell.style.padding = "6px";
+      cell.style.textAlign = "left";
+      tr.appendChild(cell);
+    });
+    table.appendChild(tr);
+  });
+
+  wrapper.appendChild(table);
+  parent.appendChild(wrapper);
+}
+
+function showPreview(data, file) {
+  result.replaceChildren();
+
+  const summary = document.createElement("p");
+  summary.textContent =
+    `${data.message} মোট সারি: ${data.rows_total}। ` +
+    `রাখা হবে: ${data.rows_kept}। ` +
+    `ফাঁকা সারি বাদ: ${data.blank_rows_removed}। ` +
+    `ডুপ্লিকেট বাদ: ${data.duplicate_rows_removed}।`;
+  result.appendChild(summary);
+
+  if (data.file_type === "csv") {
+    appendRowsTable(result, data.sample_rows, "পরিষ্কার করার পর নমুনা (সর্বোচ্চ ৬ সারি)");
+  } else {
+    (data.sheets || []).forEach(sheet => {
+      const info = document.createElement("p");
+      info.textContent =
+        `শিট: ${sheet.name} · রাখা হবে ${sheet.rows_kept} সারি · ` +
+        `ফাঁকা বাদ ${sheet.blank_rows_removed} · ` +
+        `ডুপ্লিকেট বাদ ${sheet.duplicate_rows_removed}`;
+      result.appendChild(info);
+      appendRowsTable(result, sheet.sample_rows, "এই শিটের নমুনা");
+    });
+  }
+
+  const note = document.createElement("p");
+  note.textContent = "ফাইল এখনো পরিষ্কার করা হয়নি। নিচের বোতাম চাপলে অনুমোদন দিয়ে পরিষ্কার হবে।";
+  result.appendChild(note);
+
+  const confirmButton = document.createElement("button");
+  confirmButton.type = "button";
+  confirmButton.textContent = "অনুমোদন দিয়ে পরিষ্কার করুন";
+  confirmButton.addEventListener("click", async () => {
+    if (!fileInput.files[0] || fileInput.files[0] !== file) {
+      result.textContent = "ফাইলটি বদলে গেছে। আবার প্রিভিউ দেখুন।";
+      return;
+    }
+
+    confirmButton.disabled = true;
+    cleanButton.disabled = true;
+    note.textContent = "অনুমোদিত ফাইল পরিষ্কার করা হচ্ছে…";
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/api/clean", {
+        method: "POST",
+        body: formData
+      });
+      const cleaned = await response.json();
+      if (!response.ok) {
+        throw new Error(cleaned.error || "ফাইল পরিষ্কার করা যায়নি।");
+      }
+
+      result.replaceChildren();
+      const done = document.createElement("p");
+      done.textContent =
+        `${cleaned.message} রাখা হয়েছে: ${cleaned.rows_kept} সারি। ` +
+        `ফাঁকা সারি বাদ: ${cleaned.blank_rows_removed}। ` +
+        `ডুপ্লিকেট বাদ: ${cleaned.duplicate_rows_removed}।`;
+
+      const link = document.createElement("a");
+      link.className = "download";
+      link.href = cleaned.download_url;
+      link.textContent = "পরিষ্কার ফাইল ডাউনলোড";
+      result.append(done, link);
+      previewFileName = null;
+    } catch (error) {
+      note.textContent = error.message || "ত্রুটি হয়েছে।";
+      confirmButton.disabled = false;
+    } finally {
+      cleanButton.disabled = !fileInput.files[0];
+    }
+  });
+
+  result.appendChild(confirmButton);
+  previewFileName = file.name;
+}
+
+showSelectedFile();
+
+document.getElementById("uploadForm").addEventListener("submit", async event => {
+  event.preventDefault();
+
+  const file = fileInput.files[0];
+  if (!file) return;
+
+  if (file.size > 10 * 1024 * 1024) {
+    result.textContent = "ফাইলের সর্বোচ্চ আকার ১০ MB।";
+    return;
+  }
+
+  cleanButton.disabled = true;
+  cleanButton.textContent = "প্রিভিউ তৈরি হচ্ছে…";
+  result.textContent = "ফাইল পরীক্ষা করা হচ্ছে; এখনো কোনো পরিষ্কার ফাইল তৈরি হচ্ছে না…";
+
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await fetch("/api/preview", {
+      method: "POST",
+      body: formData
+    });
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "প্রিভিউ তৈরি করা যায়নি।");
+    }
+
+    showPreview(data, file);
+  } catch (error) {
+    result.textContent = error.message || "প্রিভিউ তৈরিতে ত্রুটি হয়েছে।";
+  } finally {
+    cleanButton.disabled = !fileInput.files[0] ||
+      fileInput.files[0].size > 10 * 1024 * 1024;
+    cleanButton.textContent = "প্রিভিউ দেখুন";
+  }
+});
+
+// Task Planner UI: planning and history only; no task execution.
+const taskForm = document.getElementById("taskPlanForm");
+const taskInput = document.getElementById("taskInstruction");
+const taskButton = document.getElementById("taskPlanButton");
+const taskNotice = document.getElementById("taskNotice");
+const taskDetail = document.getElementById("taskDetail");
+const taskHistory = document.getElementById("taskHistory");
+
+function taskElement(tag, text, className) {
+  const element = document.createElement(tag);
+  element.textContent = text;
+  if (className) element.className = className;
+  return element;
+}
+
+let latestTaskDetailRequest = 0;
+let selectedTaskDetailId = null;
+
+async function showTaskDetail(taskId) {
+  selectedTaskDetailId = taskId;
+  const requestId = ++latestTaskDetailRequest;
+  taskDetail.replaceChildren();
+  taskDetail.append(
+    taskElement("p", "কাজের বিবরণ লোড হচ্ছে…")
+  );
+
+  try {
+    const response = await fetch(
+      "/api/tasks/" + encodeURIComponent(taskId)
+    );
+    const data = await response.json();
+
+    if (
+      requestId !== latestTaskDetailRequest ||
+      taskId !== selectedTaskDetailId
+    ) return;
+
+    if (!response.ok) {
+      throw new Error(data.error || "বিবরণ পাওয়া যায়নি।");
+    }
+
+    const task = data.task;
+    taskDetail.replaceChildren();
+    taskDetail.append(taskElement("h3", "কাজের বিবরণ"));
+    taskDetail.append(taskElement("p", "নির্দেশ: " + task.instruction));
+    taskDetail.append(taskElement("p", "ধরন: " + task.task_type));
+    taskDetail.append(taskElement("p", "অবস্থা: " + task.status));
+    taskDetail.append(
+      taskElement("p", "মোড: " + task.plan.execution)
+    );
+
+    const heading = taskElement("h4", "পরিকল্পনার ধাপ");
+    const list = document.createElement("ol");
+
+    for (const step of task.plan.steps || []) {
+      list.append(taskElement("li", step));
+    }
+
+    taskDetail.append(heading, list);
+
+    const generatedCode = task.plan && task.plan.code;
+    if (generatedCode && generatedCode.source) {
+      taskDetail.append(
+        taskElement("h4", generatedCode.title || "তৈরি করা কোড")
+      );
+
+      taskDetail.append(
+        taskElement(
+          "p",
+          "কোডটি শুধু দেখানো হচ্ছে। এটি স্বয়ংক্রিয়ভাবে চালানো হবে না।"
+        )
+      );
+
+      const codeBlock = document.createElement("pre");
+      codeBlock.className = "generated-code";
+      codeBlock.style.overflowX = "auto";
+
+      const codeElement = document.createElement("code");
+      codeElement.textContent = generatedCode.source;
+      codeBlock.append(codeElement);
+
+      const copyButton = document.createElement("button");
+      copyButton.type = "button";
+      copyButton.textContent = "কোড কপি করুন";
+
+      copyButton.addEventListener("click", async () => {
+        try {
+          if (!navigator.clipboard || !navigator.clipboard.writeText) {
+            throw new Error("Clipboard API unavailable");
+          }
+
+          await navigator.clipboard.writeText(generatedCode.source);
+          copyButton.textContent = "কপি হয়েছে";
+        } catch {
+          const textarea = document.createElement("textarea");
+          textarea.value = generatedCode.source;
+          textarea.setAttribute("readonly", "");
+          textarea.style.position = "fixed";
+          textarea.style.opacity = "0";
+          taskDetail.append(textarea);
+          textarea.select();
+
+          let copied = false;
+          try {
+            copied = document.execCommand("copy");
+          } catch {
+            copied = false;
+          }
+
+          textarea.remove();
+          copyButton.textContent = copied
+            ? "কপি হয়েছে"
+            : "কপি হয়নি—কোড নির্বাচন করে কপি করুন";
+        }
+      });
+
+      taskDetail.append(copyButton, codeBlock);
+    }
+
+    if (task.task_type === "file_cleaner") {
+      const section = document.createElement("section");
+      section.className = "agent-execution";
+      section.style.marginTop = "18px";
+      section.style.padding = "14px";
+      section.style.border = "1px solid var(--border, #39445a)";
+      section.style.borderRadius = "12px";
+
+      section.append(taskElement(
+        "h4", "NH Agentic Workbench · CSV/XLSX Execution"
+      ));
+      section.append(taskElement(
+        "p",
+        "এই অনুমোদিত টুল শুধু CSV/XLSX ফাইল পরিষ্কার করে। চালানোর আগে ফাইল নির্বাচন ও স্পষ্ট অনুমোদন আবশ্যক।",
+        "task-meta"
+      ));
+
+      const result = task.plan && task.plan.execution_result;
+
+      if (task.status === "completed" && result && result.status === "completed") {
+        section.append(taskElement("p", "কাজ সফলভাবে সম্পন্ন হয়েছে।"));
+        section.append(taskElement(
+          "p",
+          "রাখা সারি: " + (result.rows_kept ?? "—") +
+          " · ফাঁকা সারি বাদ: " + (result.blank_rows_removed ?? "—") +
+          " · ডুপ্লিকেট বাদ: " + (result.duplicate_rows_removed ?? "—")
+        ));
+
+        if (result.download_url) {
+          const link = document.createElement("a");
+          link.href = result.download_url;
+          link.textContent = "পরিষ্কার করা ফাইল ডাউনলোড করুন";
+          link.style.display = "inline-block";
+          link.style.marginTop = "8px";
+          section.append(link);
+        }
+      } else if (task.status === "failed") {
+        section.append(taskElement(
+          "p",
+          "কাজ ব্যর্থ হয়েছে: " +
+          ((result && result.message) || "ফলাফল দেখতে ইতিহাস রিফ্রেশ করুন।"),
+          "task-error"
+        ));
+      } else if (task.status === "running") {
+        section.append(taskElement(
+          "p", "কাজটি চলমান। ইতিহাস রিফ্রেশ করে অবস্থা দেখুন।", "task-meta"
+        ));
+      } else if (task.status === "planned") {
+        const form = document.createElement("form");
+        form.style.display = "grid";
+        form.style.gap = "12px";
+
+        const fileLabel = document.createElement("label");
+        fileLabel.textContent = "পরিষ্কার করার CSV বা XLSX ফাইল";
+        const fileInput = document.createElement("input");
+        fileInput.type = "file";
+        fileInput.name = "file";
+        fileInput.accept = ".csv,.xlsx";
+        fileInput.required = true;
+        fileLabel.append(fileInput);
+
+        const consentLabel = document.createElement("label");
+        consentLabel.style.display = "flex";
+        consentLabel.style.gap = "8px";
+        consentLabel.style.alignItems = "flex-start";
+
+        const consent = document.createElement("input");
+        consent.type = "checkbox";
+        consent.required = true;
+        consent.style.marginTop = "4px";
+
+        const consentText = document.createElement("span");
+        consentText.textContent =
+          "আমি নির্বাচিত ফাইল পরিষ্কার করার অনুমোদন দিচ্ছি। এই কাজ ফাইলের ডেটা প্রসেস করবে এবং নতুন ফলাফল তৈরি করবে।";
+        consentLabel.append(consent, consentText);
+
+        const actions = document.createElement("div");
+        actions.className = "actions";
+
+        const submit = document.createElement("button");
+        submit.type = "submit";
+        submit.textContent = "অনুমোদন করে কাজ চালান";
+
+        const status = taskElement(
+          "p", "ফাইল নির্বাচন করে অনুমোদন দিলে কাজ শুরু হবে।", "task-meta"
+        );
+        status.setAttribute("role", "status");
+        status.setAttribute("aria-live", "polite");
+
+        actions.append(submit);
+        form.append(fileLabel, consentLabel, actions, status);
+
+        form.addEventListener("submit", async event => {
+          event.preventDefault();
+
+          if (!consent.checked || !fileInput.files.length) {
+            status.textContent = "ফাইল নির্বাচন করুন এবং অনুমোদনের ঘরে টিক দিন।";
+            return;
+          }
+
+          if (selectedTaskDetailId !== task.id) return;
+
+          submit.disabled = true;
+          fileInput.disabled = true;
+          consent.disabled = true;
+          status.className = "task-meta";
+          status.textContent = "ফাইল যাচাই ও পরিষ্কারের কাজ চলছে…";
+
+          try {
+            const payload = new FormData(form);
+            payload.set("confirmed", "yes");
+
+            const response = await fetch(
+              "/api/agent/execute/" + encodeURIComponent(task.id),
+              { method: "POST", body: payload }
+            );
+            const data = await response.json();
+
+            if (!response.ok) {
+              throw new Error(data.error || "কাজ চালানো যায়নি।");
+            }
+
+            status.textContent = "কাজ সম্পন্ন হয়েছে। ফলাফল লোড হচ্ছে…";
+            await showTaskDetail(task.id);
+            await loadTaskHistory();
+          } catch (error) {
+            status.className = "task-error";
+            status.textContent = error.message || "কাজ চালাতে সমস্যা হয়েছে।";
+            submit.disabled = false;
+            fileInput.disabled = false;
+            consent.disabled = false;
+          }
+        });
+
+        section.append(form);
+      } else {
+        section.append(taskElement(
+          "p", "এই কাজের বর্তমান অবস্থা: " + task.status, "task-meta"
+        ));
+      }
+
+      taskDetail.append(section);
+    } else {
+      taskDetail.append(taskElement(
+        "p",
+        "এই ধরনের কাজের জন্য এখনো অনুমোদিত execution tool নেই। তৈরি করা কোড স্বয়ংক্রিয়ভাবে চালানো হবে না।",
+        "task-meta"
+      ));
+    }
+
+    taskDetail.append(
+      taskElement(
+        "p",
+        "পরিকল্পনার ধাপগুলো উপরে দেখানো হয়েছে। অনুমোদিত টুল ছাড়া অন্য কোনো কাজ চালানো হয়নি।",
+        "task-meta"
+      )
+    );
+  } catch (error) {
+    if (requestId !== latestTaskDetailRequest) return;
+
+    taskDetail.replaceChildren(
+      taskElement("p", error.message || "ত্রুটি হয়েছে।", "task-error")
+    );
+  }
+}
+
+let latestTaskHistoryRequest = 0;
+
+async function loadTaskHistory() {
+  const requestId = ++latestTaskHistoryRequest;
+
+  taskHistory.replaceChildren(
+    taskElement("p", "ইতিহাস লোড হচ্ছে…")
+  );
+
+  try {
+    const response = await fetch("/api/tasks/history?limit=10");
+    const data = await response.json();
+
+    if (requestId !== latestTaskHistoryRequest) return;
+
+    if (!response.ok) {
+      throw new Error(data.error || "ইতিহাস লোড করা যায়নি।");
+    }
+
+    taskHistory.replaceChildren();
+
+    if (!data.tasks || data.tasks.length === 0) {
+      taskHistory.append(taskElement("p", "এখনো কোনো কাজের ইতিহাস নেই।"));
+      return;
+    }
+
+    for (const task of data.tasks) {
+      const item = document.createElement("article");
+      item.className = "task-item";
+      item.append(taskElement("p", task.instruction));
+      item.append(
+        taskElement(
+          "p",
+          "ধরন: " + task.task_type + " · অবস্থা: " + task.status,
+          "task-meta"
+        )
+      );
+
+      const button = document.createElement("button");
+      button.type = "button";
+      button.textContent = "বিস্তারিত দেখুন";
+      button.addEventListener("click", () => showTaskDetail(task.id));
+
+      item.append(button);
+      taskHistory.append(item);
+    }
+  } catch (error) {
+    if (requestId !== latestTaskHistoryRequest) return;
+
+    taskHistory.replaceChildren(
+      taskElement("p", error.message || "ইতিহাস লোড করা যায়নি।", "task-error")
+    );
+  }
+}
+
+taskForm.addEventListener("submit", async event => {
+  event.preventDefault();
+
+  const instruction = taskInput.value.trim();
+  if (!instruction) return;
+
+  taskButton.disabled = true;
+  taskNotice.className = "";
+  taskNotice.textContent = "পরিকল্পনা তৈরি হচ্ছে…";
+  taskDetail.replaceChildren();
+
+  try {
+    const response = await fetch("/api/tasks/plan", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({instruction})
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "পরিকল্পনা তৈরি করা যায়নি।");
+    }
+
+    taskNotice.textContent =
+      (data.message || "পরিকল্পনা তৈরি হয়েছে।") +
+      " ID: " + data.task.id;
+
+    taskInput.value = "";
+    await showTaskDetail(data.task.id);
+    await loadTaskHistory();
+  } catch (error) {
+    taskNotice.className = "task-error";
+    taskNotice.textContent = error.message || "সার্ভারে সমস্যা হয়েছে।";
+  } finally {
+    taskButton.disabled = false;
+  }
+});
+
+document.getElementById("taskRefreshButton").addEventListener(
+  "click",
+  loadTaskHistory
+);
+
+loadTaskHistory();
+
+</script>
+
+<script id="project-intelligence-ui">
+(() => {
+  const testButton = document.getElementById("projectIntelTestButton");
+  const button = document.getElementById("projectIntelScanButton");
+  const status = document.getElementById("projectIntelStatus");
+
+  testButton.addEventListener("click", async () => {
+    const token = window.prompt("অনুমোদিত Test Runner token লিখুন:");
+    if (!token) {
+      status.textContent = "টেস্ট চালানো বাতিল করা হয়েছে।";
+      return;
+    }
+
+    testButton.disabled = true;
+    status.className = "project-intel-status";
+    status.textContent = "প্রকৃত unit test চলছে…";
+
+    try {
+      const response = await fetch("/api/project-intelligence/test-run", {
+        method: "POST",
+        headers: {
+          "Accept": "application/json",
+          "X-NH-Test-Token": token
+        }
+      });
+      const data = await response.json();
+
+      if (!response.ok || !data.passed) {
+        throw new Error(
+          data.message ||
+          (data.status === "failed"
+            ? "টেস্ট ব্যর্থ হয়েছে।"
+            : "অনুমতি পাওয়া যায়নি অথবা টেস্ট চালানো যায়নি।")
+        );
+      }
+
+      status.textContent =
+        `টেস্ট পাস: ${data.tests_run ?? "?"}টি · সময়: ${data.duration_seconds ?? "?"} সেকেন্ড`;
+
+      if (data.output) {
+        console.info("NH Intelligence Test Results:\n" + data.output);
+      }
+    } catch (error) {
+      status.className = "project-intel-status project-intel-error";
+      status.textContent = error.message || "টেস্ট চালাতে সমস্যা হয়েছে।";
+    } finally {
+      testButton.disabled = false;
+    }
+  });
+
+  const summary = document.getElementById("projectIntelSummary");
+  const findings = document.getElementById("projectIntelFindings");
+  const routes = document.getElementById("projectIntelRoutes");
+  const files = document.getElementById("projectIntelFiles");
+  const fileCount = document.getElementById("projectIntelFileCount");
+
+  function element(tag, text, className) {
+    const node = document.createElement(tag);
+    if (text !== undefined && text !== null) {
+      node.textContent = String(text);
+    }
+    if (className) node.className = className;
+    return node;
+  }
+
+  function emptyMessage(container, message) {
+    container.replaceChildren(element("p", message, "muted"));
+  }
+
+  function renderList(container, items, formatter, limit) {
+    container.replaceChildren();
+    if (!items || items.length === 0) {
+      emptyMessage(container, "কোনো তথ্য পাওয়া যায়নি।");
+      return;
+    }
+    const list = element("ul", undefined, "project-intel-list");
+    for (const item of items.slice(0, limit)) {
+      list.append(element("li", formatter(item)));
+    }
+    container.append(list);
+    if (items.length > limit) {
+      container.append(
+        element("p", `আরও ${items.length - limit}টি আইটেম রিপোর্টে আছে; UI-তে প্রথম ${limit}টি দেখানো হয়েছে।`, "project-intel-note")
+      );
+    }
+  }
+
+  function renderFindings(items) {
+    findings.replaceChildren();
+    if (!items || items.length === 0) {
+      emptyMessage(findings, "কোনো সম্ভাব্য সমস্যা শনাক্ত হয়নি।");
+      return;
+    }
+    for (const item of items) {
+      const card = element("article", undefined, "project-intel-item");
+      card.append(element("strong", `[${item.severity || "info"}] ${item.title || "পর্যবেক্ষণ"}`));
+      card.append(element("p", item.detail || ""));
+      if (item.solution) {
+        card.append(element("p", `পরামর্শ: ${item.solution}`));
+      }
+      findings.append(card);
+    }
+  }
+
+  function renderHealthScore(data) {
+    const s = data.summary || {};
+    const items = data.findings || [];
+    const count = severity => items.filter(item =>
+      String(item.severity || "").toLowerCase() === severity
+    ).length;
+
+    let score = 100
+      - count("critical") * 25
+      - count("high") * 15
+      - count("error") * 15
+      - count("warning") * 7
+      - count("medium") * 7
+      - count("info");
+
+    if (!(s.test_files_found > 0)) score -= 12;
+    if (!(s.routes_found > 0)) score -= 5;
+    if (s.large_or_over_limit_files_skipped > 0) score -= 5;
+    score = Math.max(0, Math.min(100, score));
+
+    let color = "#4ade80";
+    let label = "ভালো";
+    if (score < 50) {
+      color = "#fb7185";
+      label = "মনোযোগ প্রয়োজন";
+    } else if (score < 75) {
+      color = "#fbbf24";
+      label = "উন্নতি প্রয়োজন";
+    } else if (score < 90) {
+      color = "#a3e635";
+      label = "মোটামুটি ভালো";
+    }
+
+    document.getElementById("projectHealthScore").textContent = score;
+    document.getElementById("projectHealthLabel").textContent = "প্রজেক্ট হেলথ: " + label;
+    document.getElementById("projectHealthDescription").textContent =
+      "স্ক্যানের পর্যবেক্ষণ " + items.length + "টি। স্কোরটি static-analysis estimate; পূর্ণ নিরাপত্তা যাচাই নয়।";
+    document.getElementById("projectHealthTests").textContent =
+      s.test_files_found > 0
+        ? "টেস্ট ফাইল পাওয়া গেছে: " + s.test_files_found + "টি · টেস্ট চালানো হয়নি"
+        : "টেস্ট ফাইল পাওয়া যায়নি · টেস্ট চালানো হয়নি";
+
+    document.getElementById("projectHealthGauge").style.background =
+      "conic-gradient(" + color + " " + (score * 3.6) + "deg, #293448 0deg)";
+    const bar = document.getElementById("projectHealthBar");
+    bar.style.width = score + "%";
+    bar.style.background = color;
+  }
+
+  function renderReport(data) {
+    renderHealthScore(data);
+    const s = data.summary || {};
+    const metrics = [
+      ["মোট ফাইল", s.files_found],
+      ["শনাক্ত route", s.routes_found],
+      ["টেস্ট ফাইল", s.test_files_found],
+      ["পর্যবেক্ষণ", s.findings_found],
+      ["স্ক্যান করা source", `${s.source_bytes_scanned || 0} bytes`],
+      ["বাদ পড়া বড় ফাইল", s.large_or_over_limit_files_skipped]
+    ];
+    summary.replaceChildren();
+    for (const [label, value] of metrics) {
+      const card = element("div", undefined, "project-intel-metric");
+      card.append(element("span", label));
+      card.append(element("strong", value ?? 0));
+      summary.append(card);
+    }
+
+    renderFindings(data.findings || []);
+    renderList(
+      routes,
+      data.routes || [],
+      item => `${item.rule} — ${item.file}:${item.line}`,
+      60
+    );
+    fileCount.textContent = `মোট ${s.files_found || 0}টি ফাইল; নিচে সর্বোচ্চ 80টি দেখানো হচ্ছে।`;
+    renderList(
+      files,
+      data.files || [],
+      item => `${item.path} (${item.size_bytes} bytes)`,
+      80
+    );
+
+    status.className = "project-intel-status";
+    status.textContent =
+      `স্ক্যান সম্পন্ন: ${data.project || "প্রজেক্ট"} · Read-only: ${data.read_only ? "হ্যাঁ" : "না"}`;
+  }
+
+
+  const securityScanButton = document.getElementById("securityScanButton");
+  const securityAdviceButton = document.getElementById("securityAdviceButton");
+  const securityScanResults = document.getElementById("securityScanResults");
+  const securityAdviceResults = document.getElementById("securityAdviceResults");
+
+  function renderSecurityFindings(items) {
+    securityScanResults.replaceChildren();
+    if (!items || items.length === 0) {
+      emptyMessage(securityScanResults, "কোনো সম্ভাব্য সমস্যা শনাক্ত হয়নি।");
+      return;
+    }
+    for (const item of items.slice(0, 60)) {
+      const card = element("article", undefined, "project-intel-item");
+      card.append(element("strong",
+        `[${item.severity || "info"}] ${item.title || "পর্যবেক্ষণ"}`));
+      card.append(element("p", `${item.file || "?"}:${item.line || "?"}`));
+      card.append(element("p", item.detail || ""));
+      if (item.solution) card.append(element("p", `সমাধানের প্রস্তাব: ${item.solution}`));
+      securityScanResults.append(card);
+    }
+  }
+
+  securityScanButton.addEventListener("click", async () => {
+    securityScanButton.disabled = true;
+    emptyMessage(securityScanResults, "নিরাপত্তা স্ক্যান চলছে…");
+    try {
+      const response = await fetch("/api/project-intelligence/security-scan", {
+        method: "POST",
+        headers: {"Accept": "application/json"}
+      });
+      const data = await response.json();
+      if (!response.ok || data.status !== "ok") {
+        throw new Error(data.message || "নিরাপত্তা স্ক্যান ব্যর্থ হয়েছে।");
+      }
+      renderSecurityFindings(data.findings || []);
+      securityScanResults.prepend(element(
+        "p",
+        `স্ক্যান সম্পন্ন · ফাইল: ${data.summary?.files_scanned ?? 0} · সম্ভাব্য সমস্যা: ${data.summary?.issues_found ?? 0}`,
+        "project-intel-note"
+      ));
+      securityAdviceResults.replaceChildren(element(
+        "p", "রিপোর্ট তৈরি হয়েছে। চাইলে AI পরামর্শ নিন।", "muted"
+      ));
+    } catch (error) {
+      emptyMessage(securityScanResults, error.message || "স্ক্যান করা যায়নি।");
+    } finally {
+      securityScanButton.disabled = false;
+    }
+  });
+
+  securityAdviceButton.addEventListener("click", async () => {
+    securityAdviceButton.disabled = true;
+    emptyMessage(securityAdviceResults, "AI পরামর্শ তৈরি হচ্ছে…");
+    try {
+      const response = await fetch("/api/project-intelligence/security-advice", {
+        method: "POST",
+        headers: {"Accept": "application/json"}
+      });
+      const data = await response.json();
+      if (!response.ok || data.status !== "ok") {
+        throw new Error(data.message || "AI পরামর্শ তৈরি করা যায়নি।");
+      }
+      securityAdviceResults.replaceChildren();
+      securityAdviceResults.append(element(
+        "p", `AI পরামর্শ · বিবেচিত finding: ${data.findings_considered}`,
+        "project-intel-note"
+      ));
+      securityAdviceResults.append(element("p", data.advice));
+      securityAdviceResults.append(element("p", data.notice, "project-intel-note"));
+    } catch (error) {
+      emptyMessage(securityAdviceResults, error.message || "AI পরামর্শ পাওয়া যায়নি।");
+    } finally {
+      securityAdviceButton.disabled = false;
+    }
+  });
+
+  button.addEventListener("click", async () => {
+    button.disabled = true;
+    status.className = "project-intel-status";
+    status.textContent = "প্রজেক্ট স্ক্যান হচ্ছে…";
+    summary.replaceChildren();
+
+    try {
+      const response = await fetch("/api/project-intelligence/scan", {
+        method: "POST",
+        headers: {"Accept": "application/json"}
+      });
+      const data = await response.json();
+      if (!response.ok || data.status !== "ok") {
+        throw new Error(data.message || "প্রজেক্ট স্ক্যান ব্যর্থ হয়েছে।");
+      }
+      renderReport(data);
+    } catch (error) {
+      status.className = "project-intel-status project-intel-error";
+      status.textContent = error.message || "সার্ভারের সঙ্গে যোগাযোগ করা যায়নি।";
+    } finally {
+      button.disabled = false;
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
